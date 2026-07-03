@@ -64,7 +64,7 @@ Desktop.ini
 outputs/
 
 # Project: dataset (large; download separately — see README)
-DATA/
+# DATA/
 
 # PyTorch / ML checkpoints outside outputs/
 *.pth
