@@ -1,0 +1,21 @@
+# Transfer-learning study: freeze the backbone, train only the head, then
+# unfreeze the whole network after 2 epochs. Also uses class-balanced weighting.
+base: densenet121.yaml
+
+experiment:
+  name: densenet121_freeze_finetune
+
+model:
+  freeze_backbone: true
+  unfreeze_after_epoch: 2
+  dropout: 0.2
+
+loss:
+  name: weighted_cross_entropy
+  class_weights: balanced
+
+scheduler:
+  name: cosine
+  cosine:
+    t_max: 5
+    eta_min: 0.000001

@@ -1,0 +1,12 @@
+torch>=2.2
+torchvision>=0.17
+scikit-learn>=1.4
+matplotlib>=3.8
+pandas>=2.2
+numpy>=1.26
+Pillow>=10.2
+PyYAML>=6.0
+streamlit>=1.37          # dashboard frontend (needs st.navigation / st.fragment)
+altair>=5.0              # dashboard charts (bundled with streamlit)
+Jinja2>=3.1              # experiment report rendering (bundled with streamlit)
+tensorboard>=2.15        # optional; enable via logging.tensorboard in the config

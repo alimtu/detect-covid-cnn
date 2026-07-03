@@ -1,0 +1,171 @@
+# ============================================================================
+# BASE CONFIGURATION
+# ----------------------------------------------------------------------------
+# Every knob that can affect data, augmentation, model, optimization,
+# training, evaluation, checkpointing, reproducibility or logging lives here.
+# Experiment files under configs/experiments/ inherit this via `base:` and only
+# override what changes. You should never need to edit source code to run a
+# different experiment.
+# ============================================================================
+
+experiment:
+  # Human-readable label recorded in summary.json (folders stay experiment_NNN).
+  name: baseline
+  # Root under which experiment_NNN folders are created.
+  output_root: outputs
+
+# ------------------------------ Reproducibility -----------------------------
+reproducibility:
+  seed: 42            # seeds Python, NumPy and PyTorch RNGs
+  deterministic: true # request deterministic algorithms/cuDNN where possible
+
+# --------------------------------- Dataset ----------------------------------
+dataset:
+  path: DATA
+  image_size: 224
+  # Integer subset per class (fast dev) or "all" for the full dataset.
+  sample_per_class: 50
+  # null => auto-discover class folders (sorted). Or provide an explicit list.
+  class_names: null
+  use_masks: false          # reserved for future lung-segmentation work
+  cache_images: false       # cache decoded images in RAM (small datasets only)
+  shuffle: true             # shuffle the training loader
+  num_workers: 4
+  pin_memory: false
+  split:
+    train: 0.70
+    val: 0.15
+    test: 0.15
+
+# ------------------------------- Augmentation -------------------------------
+# Each transform can be enabled/disabled and tuned. An optional `p` wraps a
+# transform in RandomApply so it fires with that probability.
+augmentation:
+  random_resized_crop:
+    enabled: false
+    scale: [0.8, 1.0]
+    ratio: [0.75, 1.3333]
+  random_crop:
+    enabled: false
+    padding: 4
+  random_horizontal_flip:
+    enabled: true
+    p: 0.5
+  random_vertical_flip:
+    enabled: false
+    p: 0.5
+  random_rotation:
+    enabled: true
+    degrees: 10
+    p: 1.0
+  random_affine:
+    enabled: false
+    degrees: 0
+    translate: [0.1, 0.1]
+    scale: [0.9, 1.1]
+    shear: 0
+    p: 1.0
+  color_jitter:
+    enabled: false
+    brightness: 0.2
+    contrast: 0.2
+    saturation: 0.2
+    hue: 0.0
+    p: 1.0
+  gaussian_blur:
+    enabled: false
+    kernel_size: 3
+    sigma: [0.1, 2.0]
+    p: 0.5
+  normalize:
+    enabled: true
+    mean: [0.485, 0.456, 0.406]   # ImageNet statistics
+    std: [0.229, 0.224, 0.225]
+
+# ---------------------------------- Model -----------------------------------
+model:
+  # densenet121 | vgg16 | resnet50 | efficientnet_b0 | vit_b_16
+  name: densenet121
+  pretrained: true
+  num_classes: null            # null => inferred from dataset classes
+  freeze_backbone: false       # train only the classifier head initially
+  unfreeze_after_epoch: null   # int => unfreeze the whole network at this epoch
+  dropout: 0.0                 # dropout before the final classifier layer
+  classifier_hidden: null      # int => insert a hidden Linear+ReLU in the head
+
+# ---------------------------------- Loss ------------------------------------
+loss:
+  # cross_entropy | weighted_cross_entropy | focal
+  name: cross_entropy
+  # For weighted_cross_entropy / focal alpha:
+  #   null       => uniform
+  #   "balanced" => inverse class frequency (computed from the train split)
+  #   [w1, ...]  => explicit per-class weights
+  class_weights: null
+  focal:
+    gamma: 2.0
+    alpha: null
+
+# -------------------------------- Optimizer ---------------------------------
+optimizer:
+  name: adamw            # adam | adamw | sgd
+  learning_rate: 0.0001
+  weight_decay: 0.0001
+  momentum: 0.9          # SGD only
+  nesterov: false        # SGD only
+  betas: [0.9, 0.999]    # Adam / AdamW only
+
+# -------------------------------- Scheduler ---------------------------------
+scheduler:
+  # reduce_on_plateau | cosine | step | onecycle | none
+  name: reduce_on_plateau
+  reduce_on_plateau:
+    mode: min            # monitors validation loss
+    factor: 0.1
+    patience: 2
+  cosine:
+    t_max: 50
+    eta_min: 0.0
+  step:
+    step_size: 10
+    gamma: 0.1
+  onecycle:
+    max_lr: 0.01
+    pct_start: 0.3
+
+# --------------------------------- Training ---------------------------------
+training:
+  epochs: 5
+  batch_size: 32
+  gradient_clip: null              # float max-norm, or null to disable
+  gradient_accumulation_steps: 1
+  mixed_precision: false           # AMP (CUDA only; ignored elsewhere)
+  early_stopping:
+    enabled: true
+    monitor: val_loss              # val_loss | val_acc
+    patience: 5
+    min_delta: 0.0
+  checkpoint:
+    save_best: true
+    save_last: true
+    save_every_n_epochs: null      # int => also save periodic snapshots
+    max_keep: null                 # cap on periodic checkpoints kept
+    monitor: val_loss
+
+# -------------------------------- Evaluation --------------------------------
+evaluation:
+  metrics:
+    accuracy: true
+    precision: true
+    recall: true
+    f1: true
+    confusion_matrix: true
+    classification_report: true
+    roc_curve: true
+    pr_curve: true
+
+# --------------------------------- Logging ----------------------------------
+logging:
+  console: true
+  tensorboard: false
+  csv: true

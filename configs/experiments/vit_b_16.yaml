@@ -1,0 +1,11 @@
+# Vision Transformer (ViT-B/16). ViT typically benefits from a lower LR.
+base: ../base.yaml
+
+experiment:
+  name: vit_b_16_baseline
+
+model:
+  name: vit_b_16
+
+optimizer:
+  learning_rate: 0.00003

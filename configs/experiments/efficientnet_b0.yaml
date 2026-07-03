@@ -1,0 +1,9 @@
+# EfficientNet-B0 baseline.
+base: ../base.yaml
+
+experiment:
+  name: efficientnet_b0_baseline
+
+model:
+  name: efficientnet_b0
+  dropout: 0.2

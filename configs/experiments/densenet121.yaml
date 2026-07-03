@@ -1,0 +1,8 @@
+# DenseNet121 baseline. Inherits everything from base.yaml.
+base: ../base.yaml
+
+experiment:
+  name: densenet121_baseline
+
+model:
+  name: densenet121

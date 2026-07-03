@@ -1,0 +1,8 @@
+# ResNet50 baseline.
+base: ../base.yaml
+
+experiment:
+  name: resnet50_baseline
+
+model:
+  name: resnet50

@@ -1,0 +1,146 @@
+experiment:
+  name: baseline
+  output_root: outputs
+reproducibility:
+  seed: 42
+  deterministic: true
+dataset:
+  path: DATA
+  image_size: 224
+  sample_per_class: 50
+  class_names: null
+  use_masks: false
+  cache_images: false
+  shuffle: true
+  num_workers: 4
+  pin_memory: true
+  split:
+    train: 0.7
+    val: 0.15
+    test: 0.15
+augmentation:
+  random_resized_crop:
+    enabled: false
+    scale:
+    - 0.8
+    - 1.0
+    ratio:
+    - 0.75
+    - 1.3333
+  random_crop:
+    enabled: false
+    padding: 4
+  random_horizontal_flip:
+    enabled: true
+    p: 0.5
+  random_vertical_flip:
+    enabled: false
+    p: 0.5
+  random_rotation:
+    enabled: true
+    degrees: 10.0
+    p: 1.0
+  random_affine:
+    enabled: false
+    degrees: 0
+    translate:
+    - 0.1
+    - 0.1
+    scale:
+    - 0.9
+    - 1.1
+    shear: 0
+    p: 1.0
+  color_jitter:
+    enabled: false
+    brightness: 0.2
+    contrast: 0.2
+    saturation: 0.2
+    hue: 0.0
+    p: 1.0
+  gaussian_blur:
+    enabled: false
+    kernel_size: 3
+    sigma:
+    - 0.1
+    - 2.0
+    p: 0.5
+  normalize:
+    enabled: true
+    mean:
+    - 0.485
+    - 0.456
+    - 0.406
+    std:
+    - 0.229
+    - 0.224
+    - 0.225
+model:
+  name: resnet50
+  pretrained: true
+  num_classes: null
+  freeze_backbone: false
+  unfreeze_after_epoch: null
+  dropout: 0.0
+  classifier_hidden: null
+loss:
+  name: cross_entropy
+  class_weights: null
+  focal:
+    gamma: 2.0
+    alpha: null
+optimizer:
+  name: adamw
+  learning_rate: 0.0001
+  weight_decay: 0.0001
+  momentum: 0.9
+  nesterov: false
+  betas:
+  - 0.9
+  - 0.999
+scheduler:
+  name: reduce_on_plateau
+  reduce_on_plateau:
+    mode: min
+    factor: 0.1
+    patience: 2
+  cosine:
+    t_max: 50
+    eta_min: 0.0
+  step:
+    step_size: 10
+    gamma: 0.1
+  onecycle:
+    max_lr: 0.01
+    pct_start: 0.3
+training:
+  epochs: 5
+  batch_size: 32
+  gradient_clip: null
+  gradient_accumulation_steps: 1
+  mixed_precision: false
+  early_stopping:
+    enabled: true
+    monitor: val_loss
+    patience: 5
+    min_delta: 0.0
+  checkpoint:
+    save_best: true
+    save_last: true
+    save_every_n_epochs: null
+    max_keep: null
+    monitor: val_loss
+evaluation:
+  metrics:
+    accuracy: true
+    precision: true
+    recall: true
+    f1: true
+    confusion_matrix: true
+    classification_report: true
+    roc_curve: true
+    pr_curve: true
+logging:
+  console: true
+  tensorboard: false
+  csv: true
